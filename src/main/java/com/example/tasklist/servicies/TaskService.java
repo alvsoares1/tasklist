@@ -37,4 +37,31 @@ public class TaskService {
         return ResponseEntity.status(HttpStatus.CREATED).body(savedTask);
 
     }
+
+    public ResponseEntity<Task> updateTask(String id, Task taskDetails) {
+        Optional<Task> existingTask = taskRepository.findById(id);
+
+        if(!existingTask.isPresent()){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+        Task task = existingTask.get();
+        task.setTitle(taskDetails.getTitle());
+        task.setDescription(taskDetails.getDescription());
+        task.setPriority(taskDetails.getPriority());
+        task.setStatus(taskDetails.getStatus());
+        task.setDueDate(taskDetails.getDueDate());
+        task.setUpdatedAt(LocalDateTime.now());
+
+        Task updatedTask = taskRepository.save(task);
+        return ResponseEntity.ok(updatedTask);
+    }
+
+    public ResponseEntity<Void> deleteTask(String id) {
+        Optional<Task> existingTask = taskRepository.findById(id);
+        if(!existingTask.isPresent()){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+        taskRepository.deleteById(id);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
 }

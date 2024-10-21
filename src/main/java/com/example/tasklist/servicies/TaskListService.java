@@ -29,7 +29,6 @@ public class TaskListService {
 
 
     public ResponseEntity<TaskList> createTaskList(TaskList taskList, String token) {
-        // Extrair o nome de usuário do token
         String username = tokenService.validateToken(token);
         if (username == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
