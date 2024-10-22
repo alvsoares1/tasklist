@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -78,6 +79,25 @@ public class TaskListService {
         taskListRepository.save(taskList);
 
         return ResponseEntity.ok(taskList);
+    }
+
+    public ResponseEntity<List<TaskList>> getAllTaskLists(String token) {
+        String username = tokenService.validateToken(token);
+        if (username == null){
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        Optional<User> userOptional = userRepository.findByUsername(username);
+        if (!userOptional.isPresent()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        User user = userOptional.get();
+        List<TaskList> taskLists = user.getTaskLists();
+        if(taskLists.isEmpty()){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+        return ResponseEntity.ok(taskLists);
     }
 
 }

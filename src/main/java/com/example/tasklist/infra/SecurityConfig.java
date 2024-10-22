@@ -33,6 +33,9 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/user/login").permitAll()
                         .requestMatchers(HttpMethod.POST,"/tasklists/create").authenticated()
                         .requestMatchers(HttpMethod.POST,"/tasklists/{taskListId}/tasks").authenticated()
+                        .requestMatchers(HttpMethod.DELETE,"/tasks/{taskId}").authenticated()
+                        .requestMatchers(HttpMethod.PUT,"/tasks/{taskId}").authenticated()
+                        .requestMatchers(HttpMethod.GET,"/tasklists/Alltasks").authenticated()
 
                         .anyRequest().authenticated()
                 )

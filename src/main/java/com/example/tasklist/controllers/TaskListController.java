@@ -8,6 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 
 @RestController
 @RequestMapping("/tasklists")
@@ -38,5 +40,11 @@ public class TaskListController {
     @DeleteMapping("/tasks/{taskId}")
     public ResponseEntity<Void> deleteTask(@PathVariable String taskId) {
         return taskService.deleteTask(taskId);
+    }
+
+    @GetMapping("/Alltasks")
+    public ResponseEntity<List<TaskList>> getTaskList(@RequestHeader("Authorization") String token) {
+        String jwt = token.replace("Bearer ", "");
+        return taskListService.getAllTaskLists(jwt);
     }
 }
