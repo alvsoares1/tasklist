@@ -36,8 +36,9 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.DELETE,"/tasks/{taskId}").authenticated()
                         .requestMatchers(HttpMethod.PUT,"/tasks/{taskId}").authenticated()
                         .requestMatchers(HttpMethod.GET,"/tasklists/Alltasks").authenticated()
+                        .requestMatchers(HttpMethod.GET,"/{taskListId}/tasks").authenticated()
 
-                        .anyRequest().authenticated()
+                        .anyRequest().permitAll()
                 )
                 .headers(headers -> headers
                         .defaultsDisabled()
