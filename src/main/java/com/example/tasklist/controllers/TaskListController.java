@@ -47,4 +47,11 @@ public class TaskListController {
         String jwt = token.replace("Bearer ", "");
         return taskListService.getAllTaskLists(jwt);
     }
+    @GetMapping("/{taskListId}/tasks")
+    public ResponseEntity<List<Task>> getTasksByTaskListId(@PathVariable String taskListId) {
+        return taskListService.getTasksByTaskListId(taskListId);
+    }
+
+
 }
+

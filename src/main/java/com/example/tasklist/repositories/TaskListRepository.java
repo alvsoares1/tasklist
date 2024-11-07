@@ -6,5 +6,5 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 import java.util.Optional;
 
 public interface TaskListRepository extends MongoRepository<TaskList, String> {
-    Optional<TaskList> findTaskListByName(String title);
+    Optional<TaskList> findTaskListByName(String name);
 }

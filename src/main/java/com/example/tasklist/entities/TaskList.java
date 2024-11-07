@@ -21,7 +21,7 @@ public class TaskList {
     private String name;
     private String description;
 
-    @DBRef
+    @DBRef(lazy = false)
     private List<Task> tasks = new ArrayList<>();
 
     @DBRef

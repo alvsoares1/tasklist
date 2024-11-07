@@ -100,4 +100,21 @@ public class TaskListService {
         return ResponseEntity.ok(taskLists);
     }
 
+    public ResponseEntity<List<Task>> getTasksByTaskListId(String taskListId) {
+        Optional<TaskList> existingTaskList = taskListRepository.findById(taskListId);
+
+        if (!existingTaskList.isPresent()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+
+        TaskList taskList = existingTaskList.get();
+        List<Task> tasks = taskList.getTasks();
+
+        if (tasks.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+
+        return ResponseEntity.ok(tasks);
+    }
+
 }
