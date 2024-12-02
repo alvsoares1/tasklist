@@ -1,7 +1,6 @@
 package com.example.tasklist.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.Generated;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
