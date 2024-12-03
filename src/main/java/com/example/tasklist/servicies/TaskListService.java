@@ -4,6 +4,7 @@ package com.example.tasklist.servicies;
 import com.example.tasklist.entities.Task;
 import com.example.tasklist.entities.TaskList;
 import com.example.tasklist.entities.User;
+import com.example.tasklist.exceptions.*;
 import com.example.tasklist.infra.TokenService;
 import com.example.tasklist.repositories.TaskListRepository;
 import com.example.tasklist.repositories.TaskRepository;
@@ -30,23 +31,19 @@ public class TaskListService {
 
 
     public ResponseEntity<TaskList> createTaskList(TaskList taskList, String token) {
-        String username = tokenService.validateToken(token);
-        if (username == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
+        String tokenValidated = tokenService.validateToken(token);
+        if (tokenValidated == null) {
+            throw new userNotValidatedException();}
 
-        Optional<User> userOptional = userRepository.findByUsername(username);
-        if (!userOptional.isPresent()) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
+        Optional<User> username = userRepository.findByUsername(tokenValidated);
+        if (username.isEmpty()) {
+            throw new userNotFoundException();}
 
-        User user = userOptional.get();
-
+        User user = username.get();
         Optional<TaskList> existingTaskList = taskListRepository.findTaskListByName(taskList.getName());
         if(existingTaskList.isPresent()){
-            return ResponseEntity.status(HttpStatus.CONFLICT).build();
+            throw new tasklistAlreadyExistingException();
         }
-
         TaskList newTaskList = new TaskList();
         newTaskList.setName(taskList.getName());
         newTaskList.setDescription(taskList.getDescription());
@@ -56,19 +53,18 @@ public class TaskListService {
 
         user.getTaskLists().add(newTaskList);
         userRepository.save(user);
-        return ResponseEntity.status(HttpStatus.CREATED).body(newTaskList);
+        return ResponseEntity.ok(newTaskList);
     }
 
 
     public ResponseEntity<TaskList> createTaskInTaskList(String taskListId, Task task) {
         Optional<TaskList> existingTaskList = taskListRepository.findById(taskListId);
 
-        if (!existingTaskList.isPresent()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        if (existingTaskList.isEmpty()) {
+            throw new tasklistNotFoundException();
         }
 
         TaskList taskList = existingTaskList.get();
-
         task.setCreatedAt(LocalDateTime.now());
         task.setUpdatedAt(LocalDateTime.now());
 
@@ -82,20 +78,20 @@ public class TaskListService {
     }
 
     public ResponseEntity<List<TaskList>> getAllTaskLists(String token) {
-        String username = tokenService.validateToken(token);
-        if (username == null){
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
+        String tokenValidated = tokenService.validateToken(token);
+        if (tokenValidated == null){
+            throw new userNotValidatedException();}
 
-        Optional<User> userOptional = userRepository.findByUsername(username);
-        if (!userOptional.isPresent()) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+
+        Optional<User> userOptional = userRepository.findByUsername(tokenValidated);
+        if (userOptional.isEmpty()) {
+            throw new userNotFoundException();
         }
 
         User user = userOptional.get();
         List<TaskList> taskLists = user.getTaskLists();
         if(taskLists.isEmpty()){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            throw new tasklistNotFoundException();
         }
         return ResponseEntity.ok(taskLists);
     }
@@ -103,16 +99,12 @@ public class TaskListService {
     public ResponseEntity<List<Task>> getTasksByTaskListId(String taskListId) {
         Optional<TaskList> existingTaskList = taskListRepository.findById(taskListId);
 
-        if (!existingTaskList.isPresent()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        if (existingTaskList.isEmpty()) {
+            throw new tasklistNotFoundException();
         }
 
         TaskList taskList = existingTaskList.get();
         List<Task> tasks = taskList.getTasks();
-
-        if (tasks.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
 
         return ResponseEntity.ok(tasks);
     }

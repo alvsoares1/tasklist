@@ -1,6 +1,8 @@
 package com.example.tasklist.servicies;
 
 import com.example.tasklist.entities.Task;
+import com.example.tasklist.exceptions.taskNotFoundException;
+import com.example.tasklist.exceptions.taskTitleExistingException;
 import com.example.tasklist.repositories.TaskRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -19,7 +21,7 @@ public class TaskService {
         Optional<Task> existingTask = taskRepository.findByTitle(task.getTitle());
 
         if(existingTask.isPresent()){
-            return ResponseEntity.status(HttpStatus.CONFLICT).build();
+            throw new taskTitleExistingException();
         }
         Task newTask = new Task();
         newTask.setTitle(task.getTitle());
@@ -34,15 +36,15 @@ public class TaskService {
 
         Task savedTask = taskRepository.save(newTask);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(savedTask);
+        return ResponseEntity.ok(savedTask);
 
     }
 
     public ResponseEntity<Task> updateTask(String id, Task taskDetails) {
         Optional<Task> existingTask = taskRepository.findById(id);
 
-        if(!existingTask.isPresent()){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        if(existingTask.isEmpty()){
+            throw new taskNotFoundException();
         }
         Task task = existingTask.get();
         task.setTitle(taskDetails.getTitle());
@@ -58,10 +60,10 @@ public class TaskService {
 
     public ResponseEntity<Void> deleteTask(String id) {
         Optional<Task> existingTask = taskRepository.findById(id);
-        if(!existingTask.isPresent()){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        if(existingTask.isEmpty()){
+            throw new taskNotFoundException();
         }
         taskRepository.deleteById(id);
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        return ResponseEntity.ok().build();
     }
 }
